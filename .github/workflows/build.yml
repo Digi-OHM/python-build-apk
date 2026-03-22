@@ -7,32 +7,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
+      # 1. ติดตั้ง Java (จำเป็นสำหรับ Android SDK)
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      # THIS IS THE FIX: Pre-install Flutter so Flet skips the prompt
+      # 2. ติดตั้ง Flutter SDK (ตัวนี้แหละครับที่จะทำให้ Flet ไม่ต้องโหลดเอง)
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          # คุณสามารถระบุเวอร์ชันได้ เช่น flutter-version: '3.29.0' 
+          # หรือปล่อยไว้เพื่อเอาเวอร์ชันล่าสุด
 
-      - name: Install Flet
+      # 3. ติดตั้ง Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # 4. ติดตั้ง Flet และสั่ง Build
+      - name: Install Flet and Build APK
         run: |
           pip install flet
-
-      - name: Build APK
-        run: |
-          # Flet will now see Flutter is already there and won't ask [y/n]
+          # สั่ง build โดยใช้ --no-interactive เพื่อป้องกันการรอ input
           flet build apk --no-interactive
 
+      # 5. เก็บไฟล์ APK ที่สร้างเสร็จแล้วออกมาให้เราโหลด
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
