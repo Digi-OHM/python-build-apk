@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Shopping List</title>
+
+<style>
+:root {
+  --bg: #f5f5f5;
+  --card: #ffffff;
+  --text: #222;
+  --border: #ddd;
+
+  --primary: #4CAF50;
+  --primary-rgb: 76,175,80;
+
+  --row-alt: #f3f3f3;
+
+  --thead-bg: rgba(76,175,80,0.08);
+  --thead-text: #2e7d32;
+}
+
+body.dark {
+  --bg: #121212;
+  --card: #1e1e1e;
+  --text: #eee;
+  --border: #333;
+
+  --primary: #3aa0ff;
+  --primary-rgb: 58,160,255;
+
+  --row-alt: #181818;
+
+  --thead-bg: rgba(58,160,255,0.12);
+  --thead-text: #66b2ff;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
+}
+
+.container {
+  width: 100%;
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+.card {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+  transition: background 0.3s;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* THEME SWITCH */
+.theme-switch {
+  position: relative;
+  width: 60px;
+  height: 30px;
+}
+.theme-switch input { display: none; }
+
+.theme-slider {
+  position: absolute;
+  inset: 0;
+  background: #ccc;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.theme-slider::before {
+  content: "🌙";
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: 0.3s;
+}
+.theme-switch input:checked + .theme-slider {
+  background: var(--primary);
+}
+.theme-switch input:checked + .theme-slider::before {
+  transform: translateX(30px);
+  content: "☀️";
+}
+
+/* INPUT */
+.input-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  align-items: flex-start;
+}
+
+input {
+  flex: 1;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 16px;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+}
+
+input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(var(--primary-rgb),0.2);
+  outline: none;
+}
+
+/* BUTTON COLUMN */
+.button-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* BUTTONS */
+.add-btn, .reset-btn {
+  width: 130px;
+  border-radius: 14px;
+  padding: 10px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.add-btn {
+  background: var(--primary);
+}
+
+.reset-btn {
+  background: #999;
+}
+
+.add-btn:hover,
+.reset-btn:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* DELETE */
+.delete-btn {
+  background: crimson;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 10px;
+  transition: 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  transform: scale(1.05);
+}
+
+/* TABLE */
+.table-wrapper {
+  margin-top: 25px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: var(--thead-bg);
+}
+
+th {
+  color: var(--thead-text);
+  font-weight: 600;
+}
+
+tbody tr {
+  transition: background 0.25s ease;
+}
+
+tbody tr:nth-child(even) {
+  background: var(--row-alt);
+}
+
+th, td {
+  padding: 14px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+
+td:nth-child(2) {
+  text-align: left;
+}
+
+/* TOGGLE */
+.switch {
+  position: relative;
+  width: 45px;
+  height: 22px;
+  display: inline-block;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: #ccc;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 2px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.3s ease;
+}
+
+.switch input:checked + .slider {
+  background: var(--primary);
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+/* ACTIVE ROW */
+.active-row {
+  background: rgba(var(--primary-rgb),0.15) !important;
+  transition: background 0.3s ease;
+}
+
+/* MOBILE */
+@media(max-width:600px){
+  th:nth-child(1),
+  td:nth-child(1){
+    display:none;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <div class="card">
+    <div class="header">
+      <h2>🛒 Shopping List</h2>
+
+      <label class="theme-switch">
+        <input type="checkbox" id="themeToggle" onchange="toggleMode(this)">
+        <span class="theme-slider"></span>
+      </label>
+    </div>
+
+    <div class="input-group">
+      <input id="nameInput" placeholder="Enter item..." />
+
+      <div class="button-col">
+        <button class="add-btn" onclick="addRow()">Add</button>
+        <button class="reset-btn" onclick="resetStatus()">Reset</button>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 5%;">No.</th>
+            <th style="width: 40%; text-align: left;">Name</th>
+            <th style="width: 35%;">Note</th>
+            <th style="width: 10%;">Status</th>
+            <th style="width: 10%;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+let index = 1;
+
+function loadData() {
+  const data = JSON.parse(localStorage.getItem("shopping-data") || "[]");
+  const tbody = document.getElementById("tableBody");
+  tbody.innerHTML = "";
+  index = 1;
+
+  data.forEach(item => {
+    addRowFromData(item);
+  });
+}
+
+function saveData() {
+  const rows = [];
+  document.querySelectorAll("#tableBody tr").forEach(tr => {
+    rows.push({
+      name: tr.children[1].innerText.trim(),
+      note: tr.children[2].innerText.trim(),
+      checked: tr.querySelector(".switch input").checked
+    });
+  });
+  localStorage.setItem("shopping-data", JSON.stringify(rows));
+}
+
+function addRowFromData(item) {
+  const tbody = document.getElementById("tableBody");
+  const row = document.createElement("tr");
+
+  row.innerHTML = `
+    <td>${index}</td>
+    <td>${escapeHtml(item.name)}</td>
+    <td contenteditable="true">${escapeHtml(item.note || "")}</td>
+    <td>
+      <label class="switch">
+        <input type="checkbox" ${item.checked ? "checked" : ""} onchange="toggleRow(this)">
+        <span class="slider"></span>
+      </label>
+    </td>
+    <td>
+      <button class="delete-btn" onclick="deleteRow(this)">Delete</button>
+    </td>
+  `;
+
+  if (item.checked) row.classList.add("active-row");
+
+  setupNoteListener(row);
+  tbody.appendChild(row);
+  index++;
+}
+
+function addRow() {
+  const input = document.getElementById("nameInput");
+  const name = input.value.trim();
+  if (!name) return;
+
+  addRowFromData({
+    name,
+    note: "",
+    checked: false
+  });
+
+  input.value = "";
+  saveData();
+}
+
+function deleteRow(btn) {
+  btn.closest("tr").remove();
+  renumberRows();
+  saveData();
+}
+
+function toggleRow(el) {
+  const row = el.closest("tr");
+  row.classList.toggle("active-row", el.checked);
+  saveData();
+}
+
+function resetStatus() {
+  document.querySelectorAll(".switch input").forEach(sw => {
+    sw.checked = false;
+    sw.closest("tr").classList.remove("active-row");
+  });
+  saveData();
+}
+
+function toggleMode(el) {
+  document.body.classList.toggle("dark", el.checked);
+  localStorage.setItem("theme", el.checked ? "dark" : "light");
+}
+
+function loadTheme() {
+  const theme = localStorage.getItem("theme") || "light";
+  const toggle = document.getElementById("themeToggle");
+  if (theme === "dark") {
+    document.body.classList.add("dark");
+    toggle.checked = true;
+  } else {
+    toggle.checked = false;
+  }
+}
+
+function setupNoteListener(row) {
+  const noteCell = row.children[2];
+  noteCell.addEventListener("input", saveData);
+  noteCell.addEventListener("blur", saveData);
+}
+
+function renumberRows() {
+  document.querySelectorAll("#tableBody tr").forEach((tr, i) => {
+    tr.children[0].innerText = i + 1;
+  });
+  index = document.querySelectorAll("#tableBody tr").length + 1;
+}
+
+function escapeHtml(text) {
+  return (text || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+window.addEventListener("load", () => {
+  loadTheme();
+  loadData();
+});
+
+window.addEventListener("beforeunload", saveData);
+</script>
+</body>
+</html>
