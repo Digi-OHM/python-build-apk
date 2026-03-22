@@ -18,7 +18,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # NEW: This installs Flutter so Flet doesn't have to ask
+      # THIS IS THE KEY: Pre-install Flutter so Flet skips the prompt
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -30,7 +30,7 @@ jobs:
 
       - name: Build APK
         run: |
-          # With Flutter pre-installed, this will now proceed automatically
+          # Flet will now find Flutter already installed and won't ask [y/n]
           flet build apk --no-interactive
 
       - name: Upload APK
