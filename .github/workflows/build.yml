@@ -12,7 +12,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Java is required for Android builds
+      # Android builds require Java 17
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -23,10 +23,9 @@ jobs:
         run: |
           pip install flet
 
-      - name: Build APK (Non-Interactive)
+      - name: Build APK (Automatic)
         run: |
-          # The -y flag tells it to automatically install Flutter SDK
-          # --no-interactive prevents it from waiting for human input
+          # --no-interactive tells Flet to say "Yes" to everything automatically
           flet build apk --no-interactive
 
       - name: Upload APK
