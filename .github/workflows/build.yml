@@ -12,20 +12,26 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Android builds require Java 17
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
+      # NEW: Pre-install Flutter so Flet doesn't ask to install it
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.0' # Matches current Flet requirements
+          channel: 'stable'
+
       - name: Install Flet
         run: |
           pip install flet
 
-      - name: Build APK (Automatic)
+      - name: Build APK
         run: |
-          # --no-interactive tells Flet to say "Yes" to everything automatically
+          # Now that Flutter exists, Flet will skip the install prompt
           flet build apk --no-interactive
 
       - name: Upload APK
