@@ -6,6 +6,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GRADLE_USER_HOME: ${{ runner.temp }}/gradle
 
     steps:
       - uses: actions/checkout@v4
@@ -15,13 +17,11 @@ jobs:
         with:
           node-version: 18
 
-      - name: Cache npm
-        uses: actions/cache@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
+          distribution: temurin
+          java-version: '17'
 
       - name: Install Capacitor
         run: |
@@ -45,20 +45,11 @@ jobs:
       - name: Sync
         run: npx cap sync
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Clean Gradle cache
-        run: rm -rf ~/.gradle/caches
-
       - name: Build APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon --refresh-dependencies
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
