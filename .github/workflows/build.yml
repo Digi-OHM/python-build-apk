@@ -3,6 +3,9 @@ name: Build APK
 on:
   push:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -44,6 +47,15 @@ jobs:
 
       - name: Sync
         run: npx cap sync
+
+      - name: Force clean gradle
+        run: |
+          rm -rf ~/.gradle
+          rm -rf /tmp/gradle
+
+      - name: Fix bcprov issue
+        run: |
+          echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> android/gradle.properties
 
       - name: Build APK
         run: |
