@@ -3,14 +3,9 @@ name: Build APK
 on:
   push:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   build:
-    runs-on: ubuntu-latest
-    env:
-      GRADLE_USER_HOME: /tmp/gradle
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
@@ -26,42 +21,21 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Install Capacitor
+      - name: Setup Capacitor
         run: |
           npm init -y
-          npm install @capacitor/core @capacitor/cli
-
-      - name: Create web dir
-        run: |
+          npm install @capacitor/core@5 @capacitor/cli@5 @capacitor/android@5
           mkdir www
           cp index.html www/index.html
-
-      - name: Init Capacitor
-        run: |
           npx cap init ShoppingList com.digiohm.shopping --web-dir=www
-
-      - name: Add Android
-        run: |
-          npm install @capacitor/android
           npx cap add android
-
-      - name: Sync
-        run: npx cap sync
-
-      - name: Force clean gradle
-        run: |
-          rm -rf ~/.gradle
-          rm -rf /tmp/gradle
-
-      - name: Fix bcprov issue
-        run: |
-          echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> android/gradle.properties
+          npx cap sync
 
       - name: Build APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --refresh-dependencies
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
