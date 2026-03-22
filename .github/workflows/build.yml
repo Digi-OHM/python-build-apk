@@ -15,6 +15,14 @@ jobs:
         with:
           node-version: 18
 
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
       - name: Install Capacitor
         run: |
           npm init -y
@@ -27,7 +35,7 @@ jobs:
 
       - name: Init Capacitor
         run: |
-          npx cap init app com.digiohm.app --web-dir=www
+          npx cap init ShoppingList com.digiohm.shopping --web-dir=www
 
       - name: Add Android
         run: |
@@ -36,6 +44,12 @@ jobs:
 
       - name: Sync
         run: npx cap sync
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Clean Gradle cache
         run: rm -rf ~/.gradle/caches
